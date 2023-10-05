@@ -1,0 +1,59 @@
+import random
+import time
+
+class Points1:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+#compute the top-right staircase using divide and conquer approach 
+def computesc(points):
+    if len(points) <= 1:
+        return points
+
+    mid = len(points) // 2
+    left = points[:mid]
+    right = points[mid:]
+
+    staircase_left = computesc(left)
+    staircase_right = computesc(right)
+
+    return mrgstair(staircase_left, staircase_right)
+
+
+#Merges two staircases into a single staircase maintaining the top-right pattern.
+def mrgstair(staircase_left, staircase_right):
+    merged_staircase = []
+    i, j = 0, 0
+
+    while i < len(staircase_left) and j < len(staircase_right):
+        if staircase_left[i].y <= staircase_right[j].y:
+            merged_staircase.append(staircase_left[i])
+            i += 1
+        else:
+            merged_staircase.append(Points1(staircase_right[j].x, staircase_left[i].y))
+            j += 1
+
+    merged_staircase.extend(staircase_left[i:])
+    merged_staircase.extend(staircase_right[j:])
+    return merged_staircase
+
+
+if __name__ == "__main__":
+    n_values = [10, 100, 1000, 10000, 100000]
+
+    for n in n_values:
+        #generate n random points
+        points = [Points1(random.randint(1, 1000), random.randint(1, 1000)) for _ in range(n)]
+
+        start_time = time.time()
+        #sort the points by x-coordinate
+        points.sort(key=lambda point: point.x)
+
+        #Compute the top-right staircase
+        staircase = computesc(points)
+
+        end_time = time.time()
+        execution_time = end_time - start_time
+
+        print("Execution time for n = {}: {:.6f} seconds".format(n, execution_time))
